@@ -41,9 +41,10 @@ app.get('/forgotpassword', (req,res)=>{     // chuyển về giao diện cho ng�
 app.post('/forgotpassword', async (req,res)=>{
     let secret = randomstring.generate();   // tạo ra một chuỗi ngẫu nhiên đóng vai trò như một mã xác thực
     let user;
-    User.findOneAndUpdate({email:req.body.email},{refreshPassword : secret} ,function(err, res){       // update refreshPassword trong database
+    User.findOneAndUpdate({email:req.body.email},{refreshPassword : secret} ,function(err, user_found){       // update refreshPassword trong database
         if(err) throw err;
-        console.log("updated");         
+        if(!user_found) res.send("Email không tồn tại trong hệ thống") /// email khong ton tai trong he thong 
+        return;
     });
 
     await User.findOne({email:req.body.email}).then(function(user_found){
@@ -88,7 +89,7 @@ app.get('/changepassword/:id/:token', async (req, res)=>{       // xác thực t
 
 
 app.post('/changepassword', async (req, res)=>{
-    User.findByIdAndUpdate(req.body.id,{password : req.body.password,refreshPassword : ''} ,function(err, user){
+    User.findByIdAndUpdate(req.body.id,{password : req.body.password, refreshPassword : ''} ,function(err, user){
         if(err) throw err;
         res.send("change password successfully <a href='/login'>dang nhap</div>")
     });
