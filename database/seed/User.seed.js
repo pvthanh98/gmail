@@ -2,7 +2,7 @@ require('../DBConnect');
 let User = require("../model/User");
 var users =[
     {
-        username:'thanhphan', 
+        email:'pvthanh98it@gmail.com', 
         password: '123',
         refreshPassword: ''
     }
