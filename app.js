@@ -87,3 +87,19 @@ app.post('/changepassword', async (req, res)=>{
         res.send("change password successfully <a href='/login'>dang nhap</div>")
     });
 })
+
+
+app.get('/register',(req, res)=>{
+   res.render('register');
+})
+
+
+app.post('/register', async (req, res)=>{
+    User.create({
+        email:req.body.email,
+        password: req.body.password,
+        refreshPassword:''
+    }).then(function(ok){
+        res.send("them thanh cong <a href='/login'>Login</a>");
+    })
+})
