@@ -15,6 +15,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 var randomstring = require("randomstring");
 
 var User = require('./database/model/User');
+// phần đăng nhập làm bình thường, chỉ cần kiểm tra match email và password là ok. không cần cầu kì nên pass qua
 
 app.get('/login', (req,res)=>{
     res.render("login");
@@ -31,22 +32,25 @@ app.post('/login', (req,res)=>{
     })
 })
 
-app.get('/forgotpassword', (req,res)=>{
+//================================= kết thúc phần đăng nhập ==============================================//
+
+
+app.get('/forgotpassword', (req,res)=>{     // chuyển về giao diện cho người dùng nhập email
     res.render("email");
 })
 app.post('/forgotpassword', async (req,res)=>{
-    let secret = randomstring.generate();
+    let secret = randomstring.generate();   // tạo ra một chuỗi ngẫu nhiên đóng vai trò như một mã xác thực
     let user;
-    User.findOneAndUpdate({email:req.body.email},{refreshPassword : secret} ,function(err, res){
+    User.findOneAndUpdate({email:req.body.email},{refreshPassword : secret} ,function(err, res){       // update refreshPassword trong database
         if(err) throw err;
-        console.log("updated");
+        console.log("updated");         
     });
 
     await User.findOne({email:req.body.email}).then(function(user_found){
         user = user_found;
-    });
+    });             // tìm user 
 
-    let urlReset = "http://localhost:8080/" +"changepassword/"+ user.id + "/"+ secret;    
+    let urlReset = "http://localhost:8080/" +"changepassword/"+ user.id + "/"+ secret;    // url gửi về client để reset password
     const send = require('gmail-send')({
         user: process.env.user,
         pass: process.env.pass,
@@ -64,7 +68,9 @@ app.post('/forgotpassword', async (req,res)=>{
     res.send("Kiểm tra email của bạn");
 })
 
-app.get('/changepassword/:id/:token', async (req, res)=>{
+
+//
+app.get('/changepassword/:id/:token', async (req, res)=>{       // xác thực thông tin token và id
     let user;
     await User
             .findOne({_id:req.params.id,refreshPassword:req.params.token})
@@ -74,7 +80,7 @@ app.get('/changepassword/:id/:token', async (req, res)=>{
             });
 
     if(user){
-        res.render("changepassword", {user});
+        res.render("changepassword", {user});   // nếu token và id tồn tại thì render về trang changepasssword
     } else {
         res.sendStatus(403)
     }
